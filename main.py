@@ -213,7 +213,15 @@ def build_dark_grey_stylesheet() -> str:
         border: 1px solid #444444;
         border-radius: 8px;
     }
-
+    
+    QPlainTextEdit#dataTerminal {
+    background-color: #111111;
+    color: #dddddd;
+    border: 1px solid #444444;
+    border-radius: 8px;
+    font-family: Consolas, monospace;
+    }
+    
     QLineEdit, QComboBox {
         background-color: #353535;
         color: #e8e8e8;
@@ -348,6 +356,14 @@ def build_light_stylesheet() -> str:
         color: #222222;
         border: 1px solid #d2d2d2;
         border-radius: 8px;
+    }
+    
+    QPlainTextEdit#dataTerminal {
+    background-color: #ffffff;
+    color: #111111;
+    border: 1px solid #cfcfcf;
+    border-radius: 8px;
+    font-family: Consolas, monospace;
     }
 
     QLineEdit, QComboBox {

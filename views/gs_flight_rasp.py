@@ -527,9 +527,7 @@ class GSFlightRaspPage(GSFlightSinglePage):
         self.terminal.setReadOnly(True)
         self.terminal.setMinimumHeight(160)
         self.terminal.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.terminal.setStyleSheet(
-            "background: #0f0f0f; font-family: Consolas, monospace;"
-        )
+        self.terminal.setObjectName("dataTerminal")
         self.terminal.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.terminal.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
@@ -542,7 +540,7 @@ class GSFlightRaspPage(GSFlightSinglePage):
 
         self.status_check_timer = QTimer(self)
         self.status_check_timer.timeout.connect(self._refresh_connection_status)
-        self.status_check_timer.start(60000)  # 15 s
+        self.status_check_timer.start(60000)  # 60 s
         self.lora_change_running = False # flag para evitar refresh de status durante mudança de configuração LoRa
 
         self._refresh_connection_status()
@@ -642,8 +640,6 @@ class GSFlightRaspPage(GSFlightSinglePage):
         UI_MARGIN_S = 5.0
         UI_STAGE_TIMEOUT_S = GS_TIMEOUT_S + UI_MARGIN_S
         SEND_DELAY_S = 0.15
-
-        self.lora_change_running = True
 
         error_messages = {
             "MUDAR_ERRO_SEM_PEDIDO": (
@@ -960,6 +956,8 @@ class GSFlightRaspPage(GSFlightSinglePage):
         busy = None
 
         try:
+            self.lora_change_running = True
+
             self.btn_lora_change.setEnabled(False)
 
             if hasattr(self, "btn_lora_force_change"):

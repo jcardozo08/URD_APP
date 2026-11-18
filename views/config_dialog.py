@@ -8,7 +8,7 @@ from PySide6.QtGui import QDoubleValidator
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QGroupBox, QLabel, QLineEdit,
     QPushButton, QDoubleSpinBox, QCheckBox, QMessageBox, QFileDialog, QFrame,
-    QToolButton, QPlainTextEdit
+    QToolButton, QPlainTextEdit, QScrollArea, QWidget
 )
 
 
@@ -101,30 +101,57 @@ class ConfigDialog(QDialog):
     # UI
     # -----------------------------
     def _build_ui(self):
-        # layout principal: topbar + colunas alinhadas
+        # layout principal
         main = QVBoxLayout(self)
         main.setContentsMargins(8, 8, 8, 8)
         main.setSpacing(8)
 
-        # topbar manual (fora da gravação)
+        # =========================
+        # TOPBAR
+        # =========================
         topbar = QHBoxLayout()
         topbar.addStretch(1)
         topbar.addWidget(QLabel("Manual"))
+
         self.btn_help = QToolButton()
         self.btn_help.setText("?")
         self.btn_help.setToolTip("Abrir manual da UI")
         topbar.addWidget(self.btn_help)
+
         main.addLayout(topbar)
 
-        # colunas
-        root = QHBoxLayout()
-        root.setSpacing(10)
-        main.addLayout(root)
+        # =========================
+        # SCROLL VERTICAL
+        # =========================
+        scroll = QScrollArea(self)
 
+        scroll.setWidgetResizable(True)
+
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        scroll.setFrameShape(QFrame.NoFrame)
+
+        scroll_widget = QWidget()
+
+        root = QHBoxLayout(scroll_widget)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(10)
+
+        scroll.setWidget(scroll_widget)
+
+        main.addWidget(scroll)
+
+        # =========================
+        # COLUNAS 
+        # =========================
         left_col = QVBoxLayout()
         right_col = QVBoxLayout()
+
         left_col.setSpacing(10)
         right_col.setSpacing(10)
+
         root.addLayout(left_col, 1)
         root.addLayout(right_col, 1)
 

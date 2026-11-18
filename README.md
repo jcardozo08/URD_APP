@@ -1,150 +1,34 @@
 # URD_APP
 
-O **URD_APP** é uma aplicação em desenvolvimento pelo Departamento de Sistemas Embarcados, voltada para oferecer uma interface integrada que facilite as operações de telemetria de voo, testes estáticos, análise de dados e simulações.
-Atualmente, encontra-se em sua **versão inicial**, com diversas funcionalidades em fase de aprimoramento.  
+**Ground station desktop** da equipe UFABC Rocket Design. Ela reúne num só software tudo o que a equipe usa em campo e no laboratório: **telemetria de voo, testes estáticos de motor, simulação e análise de dados**.
 
----
+Antes, cada uma dessas tarefas usava um script ou programa diferente. O URD_APP centraliza tudo numa interface gráfica que conversa via serial com os rádios LoRa e com os computadores de bordo ([FlightComputerRTOS](https://github.com/jcardozo08/FlightComputerRTOS)).
 
-## 📂 Páginas do Aplicativo
+## Módulos
 
-### 🔹 GS Flight (Single)
-Interface principal de voo em tempo real.  
-- Recebe telemetria completa e exibe **gráficos de altitude, coordenadas e informações importantes**.  
-- Mostra a **orientação 3D do foguete** em tempo real.  
-- Exibe **mapas online e offline** com as coordenadas do foguete.  
-- Inclui terminal de comunicação para monitoramento das mensagens enviadas e recebidas.  
-- Todos os dados recebidos são **salvos em arquivos de log**.  
+| Página | O que faz |
+|---|---|
+| **GS Flight** | Telemetria de voo em tempo real: gráficos de altitude, posição GPS em mapa online/offline (Leaflet), orientação 3D do foguete e terminal serial. Todos os dados são salvos em log. |
+| **GS Flight Rasp** | Variante da ground station com ajustes remotos, como a troca de canal LoRa em voo |
+| **GS Static Test** | Ground station para teste estático de motor: empuxo e pressão em tempo real, comando de ignição protegido e teste de comunicação (ping) |
+| **Simulator** | Envia ao microcontrolador os dados de um voo real (foguete Arace, IREC 2025), para testar a lógica de voo em solo |
+| **Data Analysis** | Carrega logs de voos e de testes estáticos e gera gráficos de desempenho |
+| **Map Manager** | Baixa os tiles de mapa da região de lançamento para uso offline em campo |
 
----
+## Destaques técnicos
 
-### 🔹 GS Flight (Dual) – *Em desenvolvimento*
-Versão expandida da GS para monitorar **dois voos em paralelo**.  
-- Ainda em fase inicial de implementação.  
-- Futuramente permitirá acompanhamento lado a lado de dois canais de telemetria.  
+- Interface em **PySide6 (Qt 6)**, com gráficos em tempo real usando **pyqtgraph** e visualização 3D com OpenGL
+- Comunicação serial (pyserial) em threads separadas, para a interface não travar durante a recepção
+- Mapas Leaflet embutidos via Qt WebEngine, com cache offline
+- Empacotado como executável Windows com **PyInstaller** (`build.ps1`)
 
----
+## Como rodar
 
-### 🔹 GS Static Test
-Ground Station para análise em tempo real dos **testes estáticos**.  
-- Exibe telemetria de **empuxo e pressão em tempo real**.  
-- Inclui **botões de ignição** e de **teste de ping (comunicação)**.  
-- Todos os dados recebidos são **salvos em arquivos de log**.  
-
----
-
-### 🔹 Data Analysis
-Ferramenta para **análise de dados**.  
-- Funciona tanto para análises de **voos** quanto de **testes estáticos**.  
-- Permite carregar arquivos de log e gerar gráficos de desempenho.  
-- Atualmente faltam diversas funcionalidades, incluindo a **exportação de dados**.  
-
----
-
-### 🔹 Simulator
-Módulo de simulação de voo.  
-- Permite simular dentro do microcontrolador um voo real sem sair do chão, com os dados de voo do **Arace** na IREC 2025.  
-- Depende de uma biblioteca ainda não lançada, logo **não está 100% utilizável**.  
-
----
-
-### 🔹 Map Manager
-Gerenciador de mapas online.  
-- Permite **baixar mapas** para utilização na **GS Flight**.
-- Funciona apenas online e necessita de alguns ajustes ainda.  
-
----
-
-## ⚠️ Status Atual
-- Esta versão inicial está em **fase de testes**.  
-- Algumas funcionalidades podem apresentar erros ou comportamento inesperado. 
-- Faltam vários ajustes ainda em algumas funcionalidades. 
-- Feedbacks e contribuições são bem-vindos!  
-
----
-
-## 📌 Próximos Passos
-- Finalizar a **GS Dual**.  
-- Melhorar estabilidade e desempenho geral.  
-- Adicionar funcionalidades ao módulo de **Data Analysis**.  
-- Refinar o modulo **GS Flight**.  
-- Ajustar o modulo **Map Manager**.
-- Finalizar o modulo **Simulator**.
-
-
----
-
-## 📂 Estrutura do Projeto
-
-Abaixo está a estrutura principal do código-fonte do **URD_APP**:
 ```bash
-URD_APP/
-├── .venv/ # Ambiente virtual Python
-├── build/ # Arquivos de build
-├── build.ps1 # Script para build no Windows
-├── LICENSE # Licença do projeto
-├── logo.ico # Ícone da aplicação
-├── logo.png # Logo utilizada na interface
-├── main.py # Arquivo principal de inicialização
-├── README.md / README.txt
-├── requirements.txt # Dependências do projeto
-├── URD_APP.spec # Especificações para build (PyInstaller)
-└── views/ # Views e layouts da aplicação
-         ├── config_dialog.py # Janela de configurações da GS Flight
-         ├── data_analysis.py # Página Data Analysis
-         ├── gs_flight_single.py # Página GS Flight (Single)
-         ├── gs_static_test.py # Página GS Static Test
-         ├── logger.py # Gerenciamento de logs
-         ├── map_widget.py # Widget de mapas (online/offline)
-         ├── maps_manager.py # Gerenciador de mapas
-         ├── net_manager.py # Gerenciador de rede
-         ├── rocket_3d.py # Renderização 3D do foguete
-         ├── simulator.py # Módulo de simulação
-         └── three.min.js # Biblioteca JS (Three.js) usada no 3D
-```
----
-
-## ⚙️ Comandos Úteis
-
-### 🔹 Ativar ambiente virtual
-- **Windows (PowerShell):** 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-> ⚠️ Caso dê erro de execução, rode antes:
-> ```powershell
-> Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
-
-
-### 🔹 Desativar ambiente virtual
-- **Windows (PowerShell):**
-```powershell
-deactivate
-```
-
-### 🔹 Instala todas as bibliotecas necessárias listadas no requirements.txt:
-- **Windows (PowerShell):**
-```powershell
 pip install -r requirements.txt
-```
-
-### 🔹 Executa o aplicativo principal em modo desenvolvimento:
-- **Windows (PowerShell):**
-```powershell
 python main.py
 ```
 
-### 🔹 Cria um .exe com a biblioteca pyinstaller (Windows):
-- **Windows (PowerShell):**
-```powershell
-pyinstaller --onefile --windowed --name URD_APP --icon=logo.ico --add-data "logo.png;." --add-data "views;views" main.py
-```
+**Stack:** Python · PySide6/Qt · pyqtgraph · NumPy/Pandas/SciPy · pyserial · PyInstaller
 
-
-
-
-
-
-
-
+> Projeto da equipe **UFABC Rocket Design**, Departamento de Sistemas Embarcados.

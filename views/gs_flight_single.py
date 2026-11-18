@@ -129,8 +129,8 @@ class BusySpinnerDialog(QDialog):
 
 
 class GSFlightSinglePage(QWidget):
-    # Sinal para pedir reinicialização na pagina main
-    requestRecreateFlightPage = Signal()
+    # Sinal para pedir reinicialização recriando a pagina no main
+    # requestRecreateFlightPage = Signal() # nao implementado ainda
 
     def __init__(self, net: NetManager, parent=None):
         super().__init__(parent)
@@ -162,21 +162,36 @@ class GSFlightSinglePage(QWidget):
         self.serial_beep_enabled = False
         self._buzzer = None
         self._last_beep_ts = 0.0
-        self._beep_mode = None  # "gpio", "winsound" ou None
+        self._beep_mode = None  # "gpio_active", "gpio_passive", "winsound" ou None
 
         if self.is_linux:
             try:
-                from gpiozero import Buzzer
+                print("[BUZZER] Tentando iniciar buzzer no GPIO6...")
 
-                self._buzzer = Buzzer(6)  # GPIO 6 no Raspberry
-                self._beep_mode = "gpio"
-            except Exception:
+                self._beep_mode = "gpio_active"  # gpio_active ou gpio_passive
+
+                if self._beep_mode == "gpio_passive":
+                    from gpiozero import TonalBuzzer
+
+                    self._buzzer = TonalBuzzer(6)
+                    self._buzzer.stop()
+
+                else:
+                    from gpiozero import Buzzer
+
+                    self._buzzer = Buzzer(6, active_high=False)
+                    self._buzzer.off()
+
+                print("[BUZZER] Buzzer iniciado no GPIO6 com sucesso!")
+
+            except Exception as e:
+                print(f"[BUZZER] Erro ao iniciar buzzer no GPIO6: {e}")
                 self._buzzer = None
                 self._beep_mode = None
+
         else:
             try:
                 import winsound
-
                 self._beep_mode = "winsound"
             except Exception:
                 self._beep_mode = None
@@ -472,14 +487,15 @@ class GSFlightSinglePage(QWidget):
         self.terminal = QPlainTextEdit()
         self.terminal.setReadOnly(True)
         self.terminal.setMinimumSize(300, 200)
-        self.terminal.setStyleSheet("""
-            QPlainTextEdit {
-                background: #0f0f0f;
-                color: white;
-                font-family: Consolas, monospace;
-                border: 1px solid #3a3a3a;
-            }
-        """)
+        # self.terminal.setStyleSheet("""
+        #     QPlainTextEdit {
+        #         background: #0f0f0f;
+        #         color: white;
+        #         font-family: Consolas, monospace;
+        #         border: 1px solid #3a3a3a;
+        #     }
+        # """)
+        self.terminal.setObjectName("dataTerminal")
         self.terminal.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.terminal.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
@@ -2029,25 +2045,46 @@ class GSFlightSinglePage(QWidget):
             return
 
         now = time.monotonic()
+
         if now - self._last_beep_ts < 0.08:
             return
 
         self._last_beep_ts = now
 
         try:
-            if self._beep_mode == "gpio" and self._buzzer:
-                self._buzzer.on()
-                QTimer.singleShot(30, self._buzzer.off)
+            # =========================
+            # BUZZER PASSIVO - PWM
+            # =========================
+            if self._beep_mode == "gpio_passive" and self._buzzer:
+                from gpiozero.tones import Tone
 
+                self._buzzer.play(Tone(2000))  # 2 kHz
+
+                QTimer.singleShot(
+                    30,
+                    self._buzzer.stop
+                )
+
+            # =========================
+            # BUZZER ATIVO
+            # =========================
+            elif self._beep_mode == "gpio_active" and self._buzzer:
+                self._buzzer.on()
+
+                QTimer.singleShot(
+                    30,
+                    self._buzzer.off
+                )
+
+            # =========================
+            # WINDOWS
+            # =========================
             elif self._beep_mode == "winsound":
                 import winsound
+                winsound.Beep(2000, 30)
 
-                # winsound.MessageBeep()
-                # alternativa:
-                winsound.Beep(600, 60)
-
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[BUZZER] Erro no beep: {e}")
 
     def set_serial_beep_enabled(self, enabled: bool):
         self.serial_beep_enabled = bool(enabled)
