@@ -1,6 +1,6 @@
 # URD_APP
 
-**Ground station desktop** da equipe UFABC Rocket Design. Ela reúne num só software tudo o que a equipe usa em campo e no laboratório: **telemetria de voo, testes estáticos de motor, simulação e análise de dados**.
+**Ground station desktop** para foguetes experimentais. Ela reúne num só software tudo o que é usado em campo e no laboratório: **telemetria de voo, testes estáticos de motor, simulação e análise de dados**.
 
 Antes, cada uma dessas tarefas usava um script ou programa diferente. O URD_APP centraliza tudo numa interface gráfica que conversa via serial com os rádios LoRa e com os computadores de bordo ([FlightComputerRTOS](https://github.com/jcardozo08/FlightComputerRTOS)).
 
@@ -30,5 +30,3 @@ python main.py
 ```
 
 **Stack:** Python · PySide6/Qt · pyqtgraph · NumPy/Pandas/SciPy · pyserial · PyInstaller
-
-> Projeto da equipe **UFABC Rocket Design**, Departamento de Sistemas Embarcados.
